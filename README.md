@@ -20,7 +20,7 @@ Tudo roda de graça: **Supabase** (banco, login e comprovantes) e **Vercel** (o 
 
 ### 2. Ligar o site ao banco
 
-1. No Supabase: **Project Settings → API**. Copie a **Project URL** e a chave **anon public**.
+1. No Supabase: **Project Settings → API**. Copie a **Project URL** (só o endereço, terminando em `.supabase.co`, sem `/rest/v1`) e a chave **anon public**.
 2. Aqui no GitHub, abra [`assets/config.js`](assets/config.js), clique no lápis (editar), cole os dois valores no lugar indicado e clique em **Commit changes**.
 
 > A chave `anon` é pública de propósito. Quem protege os dados são as regras do banco. **Nunca** coloque a chave `service_role` no site.

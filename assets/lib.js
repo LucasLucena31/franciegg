@@ -4,7 +4,9 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY, NOME_LOJA } from './config.js';
 
 export { NOME_LOJA };
 export const configurado = !SUPABASE_URL.includes('SEU-PROJETO') && !SUPABASE_ANON_KEY.includes('COLE-A-CHAVE');
-export const sb = configurado ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Aceita a URL mesmo se vier com /rest/v1 ou barra no fim (erro comum ao copiar do painel).
+const URL_BASE = SUPABASE_URL.trim().replace(/\/(rest|auth|storage)\/v1\/?.*$/, '').replace(/\/+$/, '');
+export const sb = configurado ? createClient(URL_BASE, SUPABASE_ANON_KEY.trim()) : null;
 
 export const TIPOS = [{ k: 'extra', n: 'Extra' }, { k: 'jumbo', n: 'Jumbo' }, { k: 'vermelho', n: 'Vermelho' }];
 export const FORMATOS = [
