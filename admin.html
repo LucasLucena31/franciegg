@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FranciEgg · Vendedora</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F3F5EF">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 40'%3E%3Cellipse cx='16' cy='22' rx='14' ry='17' fill='%23F2B705'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+</head>
+<body>
+<div id="login" hidden></div>
+<div id="semAcesso" hidden></div>
+
+<div id="app" hidden>
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="admin.html"><span class="egg"></span>FranciEgg</a>
+      <div class="who-bar"><a class="linkbtn" href="./">Site da cliente</a><button type="button" class="linkbtn" id="sair">Sair</button></div>
+    </div>
+    <nav aria-label="Seções">
+      <button type="button" data-view="painel">Painel</button>
+      <button type="button" data-view="vender">Vender</button>
+      <button type="button" data-view="comprar">Comprar</button>
+      <button type="button" data-view="vendas">Vendas<span class="badge" id="navBadge" hidden></span></button>
+      <button type="button" data-view="ajustes">Ajustes</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="notice" id="notice" hidden></div>
+
+  <!-- PAINEL -->
+  <section class="view" id="v-painel">
+    <div id="alertas" style="display:grid;gap:10px"></div>
+    <div>
+      <h3>Estoque agora</h3>
+      <div class="stock" id="stockTiles"></div>
+    </div>
+    <div>
+      <div class="owed-head"><h3 style="margin:0">Falta receber</h3><span class="owed-total num" id="owedTotal">R$ 0,00</span></div>
+      <div class="rows" id="owedList" style="margin-top:10px"></div>
+    </div>
+    <div>
+      <div class="sechead"><h3>Resumo de vendas</h3><div class="period" id="dPer"></div></div>
+      <div class="kpis" id="kpis"></div>
+      <p class="hint" id="kpiCompras"></p>
+      <div class="charts">
+        <figure class="chart wide"><figcaption>Valor vendido <small id="chMesesSub"></small></figcaption><div id="chMeses"></div></figure>
+        <figure class="chart"><figcaption>Cartelas vendidas por tipo</figcaption><div class="hbars" id="chTipos"></div></figure>
+        <figure class="chart"><figcaption>Quem mais comprou <small>em R$</small></figcaption><div class="hbars" id="chClientes"></div></figure>
+      </div>
+    </div>
+    <div>
+      <h3>Últimos movimentos</h3>
+      <div class="rows feed" id="feed"></div>
+    </div>
+  </section>
+
+  <!-- VENDER -->
+  <section class="view" id="v-vender" hidden>
+    <div><h2>Registrar venda</h2><p class="sub">Para vendas feitas pessoalmente ou pelo WhatsApp. As cartelas saem do estoque ao salvar.</p></div>
+    <div class="okbox" id="vOk" hidden>
+      <div><b id="vOkTxt"></b><span class="hint" id="vOkSub"></span></div>
+      <div class="actions"><a class="btn wa" id="vOkWa" href="#" target="_blank" rel="noopener">Avisar no WhatsApp</a><button type="button" class="btn ghost" id="vOkFechar">Fechar</button></div>
+    </div>
+    <form id="fVenda" autocomplete="off" novalidate>
+      <div class="two">
+        <div class="field"><label for="vCliente">Quem comprou?</label><input type="text" id="vCliente" list="dlClientes" placeholder="Nome da cliente"><datalist id="dlClientes"></datalist></div>
+        <div class="field"><label for="vTel">WhatsApp da cliente (opcional)</label><input type="tel" id="vTel" inputmode="tel" placeholder="(11) 99999-9999"></div>
+      </div>
+      <div class="field"><span class="lbl">Quantas cartelas?</span><div class="qty" id="vQty"></div></div>
+      <div class="warnbox" id="vAviso" hidden></div>
+      <div class="two">
+        <div class="field"><label for="vValor">Valor total</label><span class="money"><input type="text" inputmode="decimal" id="vValor" placeholder="0,00"></span><span class="hint" id="vValorHint"></span></div>
+        <div class="field"><label for="vData">Data da venda</label><input type="date" id="vData"></div>
+      </div>
+      <div class="field"><span class="lbl">Já pagou?</span>
+        <div class="choices c2">
+          <label class="choice"><input type="radio" name="vPago" id="vPagoNao" value="nao" checked><span>Ainda não<small>fica em "falta receber"</small></span></label>
+          <label class="choice"><input type="radio" name="vPago" id="vPagoSim" value="sim"><span>Já pagou<small>marcar como pago</small></span></label>
+        </div>
+      </div>
+      <div class="panel" id="vPagoBox" hidden>
+        <div class="field"><label for="vForma">Como pagou?</label><select id="vForma"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Outro</option></select></div>
+        <div class="field"><label for="vComp">Comprovante (opcional)</label><input type="file" id="vComp" accept="image/*,application/pdf"><span class="hint">Foto ou print do Pix, ou PDF.</span></div>
+      </div>
+      <div class="field"><label for="vObs">Observação (opcional)</label><input type="text" id="vObs" placeholder="Ex.: entregar sábado"></div>
+      <button class="btn yolk" type="submit" id="vSalvar">Registrar venda</button>
+    </form>
+  </section>
+
+  <!-- COMPRAR -->
+  <section class="view" id="v-comprar" hidden>
+    <div><h2>Entrada no estoque</h2><p class="sub">Use sempre que comprar da distribuidora.</p></div>
+    <form id="fCompra" autocomplete="off" novalidate>
+      <div class="field"><span class="lbl">Tipo de ovo</span><div class="choices c3" id="cTipos"></div></div>
+      <div class="field"><span class="lbl">Como veio?</span><div class="choices c4" id="cFormatos"></div></div>
+      <div class="two">
+        <div class="field"><label for="cQtd" id="cQtdLbl">Quantas caixas?</label><input type="number" id="cQtd" min="1" step="1" value="1" inputmode="numeric"></div>
+        <div class="field"><label for="cData">Data da compra</label><input type="date" id="cData"></div>
+      </div>
+      <div class="field"><label for="cValor">Quanto pagou (opcional)</label><span class="money"><input type="text" inputmode="decimal" id="cValor" placeholder="0,00"></span></div>
+      <div class="summary" id="cResumo"></div>
+      <button class="btn yolk" type="submit" id="cSalvar">Adicionar ao estoque</button>
+    </form>
+    <div>
+      <div class="sechead"><h3>Compras registradas</h3><button type="button" class="btn small ghost" id="btnCsvCompras">Exportar compras (CSV)</button></div>
+      <div class="list" id="listaCompras"></div>
+    </div>
+  </section>
+
+  <!-- VENDAS -->
+  <section class="view" id="v-vendas" hidden>
+    <div><h2>Vendas e pedidos</h2><p class="sub">Pedidos do site, quem já pagou e quem falta pagar.</p></div>
+    <div class="filters" id="filtros">
+      <button type="button" class="chip" data-filtro="novos" aria-pressed="false">Pedidos novos</button>
+      <button type="button" class="chip" data-filtro="avisados" aria-pressed="false">Pagamento avisado</button>
+      <button type="button" class="chip" data-filtro="pendentes" aria-pressed="true">A receber</button>
+      <button type="button" class="chip" data-filtro="pagas" aria-pressed="false">Pagas</button>
+      <button type="button" class="chip" data-filtro="canceladas" aria-pressed="false">Canceladas</button>
+      <button type="button" class="chip" data-filtro="todas" aria-pressed="false">Todas</button>
+    </div>
+    <div class="filters"><div class="period" id="lPer"></div><input type="search" id="busca" placeholder="Buscar por nome" style="flex:1;min-width:180px"></div>
+    <div class="listhead"><span class="hint" id="lResumo"></span><button type="button" class="btn small ghost" id="btnCsv">Exportar todas as vendas (CSV)</button></div>
+    <div class="list" id="listaVendas"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="view" id="v-ajustes" hidden>
+    <div><h2>Ajustes</h2><p class="sub">Preços, pedidos pelo site, Pix, mensagens, clientes e dados.</p></div>
+
+    <div>
+      <h3>Preço de venda da cartela</h3>
+      <div class="prices">
+        <label for="pr_extra">Extra<span class="money"><input type="text" inputmode="decimal" id="pr_extra" placeholder="0,00"></span></label>
+        <label for="pr_jumbo">Jumbo<span class="money"><input type="text" inputmode="decimal" id="pr_jumbo" placeholder="0,00"></span></label>
+        <label for="pr_vermelho">Vermelho<span class="money"><input type="text" inputmode="decimal" id="pr_vermelho" placeholder="0,00"></span></label>
+      </div>
+      <p class="hint">Tipo sem preço não aparece para as clientes no site. Na venda pessoal, o valor é calculado sozinho e pode ser mudado.</p>
+    </div>
+
+    <div style="display:grid;gap:14px">
+      <h3 style="margin:0">Pedidos pelo site</h3>
+      <label class="check"><input type="checkbox" id="cfgAceitando"> Aceitar pedidos pelo site</label>
+      <div class="field"><label for="cfgAviso">Recado para as clientes (opcional)</label><input type="text" id="cfgAviso" maxlength="200" placeholder="Ex.: Entregas às terças e sábados"></div>
+      <div class="field"><span class="lbl">Link para divulgar</span>
+        <div class="actions"><input type="text" id="cfgLink" readonly style="flex:1;min-width:200px"><button type="button" class="btn small" id="copiarLink">Copiar link</button></div>
+      </div>
+      <div><button type="button" class="btn" id="salvarSite">Salvar recado</button></div>
+    </div>
+
+    <div style="display:grid;gap:14px">
+      <div><h3 style="margin:0 0 6px">Pix para receber</h3><p class="hint" style="margin:0">Usado para gerar o QR Code e o "copia e cola" com o valor certo na tela da cliente.</p></div>
+      <div class="two">
+        <div class="field"><label for="pixTipo">Tipo de chave</label><select id="pixTipo"><option value="">Escolha</option><option value="celular">Celular</option><option value="cpf">CPF</option><option value="email">E-mail</option><option value="aleatoria">Chave aleatória</option></select></div>
+        <div class="field"><label for="pixChave">Chave Pix</label><input type="text" id="pixChave" autocomplete="off"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="pixNome">Nome de quem recebe</label><input type="text" id="pixNome" maxlength="25" placeholder="Como aparece no banco"></div>
+        <div class="field"><label for="pixCidade">Cidade</label><input type="text" id="pixCidade" maxlength="15" placeholder="Sao Paulo"></div>
+      </div>
+      <div><button type="button" class="btn" id="salvarPix">Salvar Pix</button></div>
+      <p class="hint" style="margin:0">Dica: depois de salvar, faça um pedido de teste com sua conta e pague R$ 1 para conferir se cai certinho.</p>
+    </div>
+
+    <div style="display:grid;gap:16px">
+      <div><h3 style="margin:0 0 6px">Mensagens do WhatsApp</h3><p class="hint" style="margin:0">As palavras entre chaves são trocadas sozinhas pelos dados da venda. Toque em uma para colocar no texto.</p></div>
+      <div class="vars" id="mVars">
+        <button type="button" data-var="{pedido}" title="Ex.: 2 cartelas Extra e 1 cartela Jumbo (R$ 45,00)">{pedido}</button>
+        <button type="button" data-var="{cliente}" title="Nome da cliente">{cliente}</button>
+        <button type="button" data-var="{valor}" title="Valor desta venda">{valor}</button>
+        <button type="button" data-var="{data}" title="Data da venda">{data}</button>
+        <button type="button" data-var="{total_aberto}" title="Tudo que a cliente ainda deve">{total_aberto}</button>
+        <button type="button" data-var="{link}" title="Link do site, onde a cliente vê os pedidos e paga">{link}</button>
+      </div>
+      <div class="field"><label for="mPedido">Ao registrar ou confirmar uma venda</label><textarea id="mPedido" rows="3"></textarea><span class="hint">Fica assim:</span><p class="preview" id="mPedidoPrev"></p></div>
+      <div class="field"><label for="mLembrete">Lembrete de pagamento</label><textarea id="mLembrete" rows="3"></textarea><span class="hint">Fica assim:</span><p class="preview" id="mLembretePrev"></p></div>
+      <p class="hint" id="mExemplo" style="margin:0"></p>
+      <div class="actions"><button type="button" class="btn" id="mSalvar">Salvar mensagens</button><button type="button" class="btn ghost" id="mPadrao">Voltar ao padrão</button></div>
+    </div>
+
+    <div>
+      <h3>Clientes</h3>
+      <p class="hint" style="margin-top:0">Coloque o e-mail de uma cliente antiga para que, quando ela criar conta no site com esse e-mail, ela veja o histórico dela.</p>
+      <div class="list" id="listaClientes"></div>
+    </div>
+
+    <div style="display:grid;gap:12px">
+      <h3 style="margin:0">Dados</h3>
+      <div class="actions"><button type="button" class="btn ghost" id="btnCsv2">Exportar vendas (CSV)</button><button type="button" class="btn ghost" id="btnCsvCompras2">Exportar compras (CSV)</button></div>
+      <div class="panel">
+        <b>Trazer dados do FranciEgg antigo</b>
+        <span class="hint">No sistema antigo, use "Exportar todas as vendas" e "Exportar compras". Escolha aqui um arquivo de cada vez. Os comprovantes antigos não vêm junto.</span>
+        <input type="file" id="impArq" accept=".csv,text/csv">
+        <div id="impPrev"></div>
+      </div>
+      <p class="hint" id="espaco" style="margin:0"></p>
+    </div>
+  </section>
+</main>
+</div>
+
+<div class="panel" id="payPanel" hidden>
+  <div class="field"><label for="pForma">Como pagou?</label><select id="pForma"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Outro</option></select></div>
+  <div class="field"><label for="pComp">Comprovante (opcional)</label><input type="file" id="pComp" accept="image/*,application/pdf"></div>
+  <div class="actions"><button type="button" class="btn small" id="pConfirmar">Confirmar pagamento</button><button type="button" class="btn small ghost" id="pCancelar">Cancelar</button></div>
+</div>
+<div id="tip" hidden></div>
+
+<script type="module" src="assets/admin.js"></script>
+</body>
+</html>
